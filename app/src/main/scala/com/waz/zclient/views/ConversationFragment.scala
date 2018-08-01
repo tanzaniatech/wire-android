@@ -731,8 +731,7 @@ class ConversationFragment extends BaseFragment[ConversationFragment.Container] 
       )
       errorsController.dismissSyncError(err.id)
     case ErrorType.CANNOT_SEND_ASSET_TOO_LARGE =>
-      val maxAllowedSizeInBytes = AssetFactory.getMaxAllowedAssetSizeInBytes
-      if (maxAllowedSizeInBytes > 0) {
+      accountsController.isTeam.head.foreach { isTeam =>
         val dialog = ViewUtils.showAlertDialog(
           getActivity,
           R.string.asset_upload_error__file_too_large__title,
@@ -741,9 +740,9 @@ class ConversationFragment extends BaseFragment[ConversationFragment.Container] 
           null,
           true
         )
-        dialog.setMessage(getString(R.string.asset_upload_error__file_too_large__message, Formatter.formatShortFileSize(getContext, maxAllowedSizeInBytes)))
+        dialog.setMessage(getString(R.string.asset_upload_error__file_too_large__message, s"${AssetData.maxAssetSizeInBytes(isTeam) / (1024 * 1024)}MB"))
+        errorsController.dismissSyncError(err.id)
       }
-      errorsController.dismissSyncError(err.id)
     case ErrorType.RECORDING_FAILURE =>
       ViewUtils.showAlertDialog(
         getActivity,
